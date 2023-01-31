@@ -12,35 +12,52 @@ export const App = () => {
   const [query, setQuery] = useState('');
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(1);
-  const [totalHits, setTotalHits] = useState(0);
+  const [totalHits, setTotalHits] = useState(0)
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!query) {
+    if (!query)
       return;
-    }
-    setIsLoading(true);
+  
+    fetchImages(query, page)
+      .then(({ hits }) => {
+        if (hits.length === 0) {
+          return toast.error('Nothing was found for your request!🤦‍♂️');
+        }
+        setImages(prevImages =>
+          page === 1 ? hits : [...prevImages, ...hits]
+        );
+        setTotalHits(prevTotalHits =>
+          page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
+        );
+      })
+      .catch(error =>
+        toast.error(`Oops! Something went wrong!😒 ${error}`)
+       )
+       .finally(() => setIsLoading(false));
+  }, [page, query, totalHits]);
 
-    const fetchData = async () => {
-      const { hits, totalHits } = await fetchImages(query, page);
-      if (totalHits === 0) {
-        toast.error('Nothing was found for your request🤦‍♂️');
-        setIsLoading(false);
-        return;
-      }
 
-      setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
-      setTotalHits(prevTotalHits =>
-        page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
-      );
-      setIsLoading(false);
-    };
+  // const fetchData = async () => {
+  //     const { hits, totalHits } = await fetchImages(query, page);
+  //     if (totalHits === 0) {
+  //       toast.error('Nothing was found for your request🤦‍♂️');
+  //       setIsLoading(false);
+  //       return;
+  //     }
 
-    fetchData().catch(error => {
-      toast.error(`Oops! Something went wrong!😒 ${error}`);
-      setIsLoading(false);
-    });
-  }, [page, query]);
+  //     setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
+  //     setTotalHits(prevTotalHits =>
+  //       page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
+  //     );
+  //     setIsLoading(false);
+  //   };
+
+  //   fetchData().catch(error => {
+  //     toast.error(`Oops! Something went wrong!😒 ${error}`);
+  //     setIsLoading(false);
+  //   });
+  // }, [page, query]);
 
   const handleQuerySubmit = query => {
     setQuery(query);
@@ -57,7 +74,6 @@ export const App = () => {
       {images && <ImageGallery images={images} />}
       {!!totalHits && <Button onLoadMore={handleLoadMore} />}
       {isLoading && <Loader />}
-
       <ToastContainer autoClose={2000} />
     </>
   );
