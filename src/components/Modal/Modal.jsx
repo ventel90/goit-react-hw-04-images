@@ -6,17 +6,17 @@ import { Overlay, ModalViewer, ModalImg } from './Modal.styled';
 const modalRoot = document.querySelector('#modal-root');
 
   export function Modal({ closeModal, tags, modalImg }) {
-  useEffect(() => {
+    useEffect(() => {
+     const handleKeyDown = e => {
+       if (e.code === 'Escape') {
+         closeModal();
+       }
+     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   });
-
-  const handleKeyDown = e => {
-    if (e.code === 'Escape') {
-      console.log('click');
-      closeModal();
-    }
-  };
+ 
 
   const backDropClick = event => {
     if (event.target === event.currentTarget) {
