@@ -10,9 +10,7 @@ const searchParams = new URLSearchParams({
 axios.defaults.baseURL = 'https://pixabay.com/api';
 
 export const fetchImages = async (query, page) => {
-  const response = await axios.get(
-    `?q=${query}&page=${page}&${searchParams}`
-  );
+  const response = await axios.get(`?q=${query}&page=${page}&${searchParams}`);
   const data = response.data;
 
   return data;

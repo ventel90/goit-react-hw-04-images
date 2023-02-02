@@ -8,35 +8,83 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
 import { Loader } from './Loader/Loader';
 
+// export const App = () => {
+//   const [query, setQuery] = useState('');
+//   const [images, setImages] = useState([]);
+//   const [page, setPage] = useState(1);
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [showLoadButton, setShowLoadButton] = useState(false);
+
+
+//   useEffect(() => {
+//     async function APIfetchImages() {
+//       if (query === '') {
+//         return;
+//       }
+//       try {
+//         setIsLoading(true);
+//         const { hits, totalHits } = await fetchImages(query, page);
+//         if (hits.length !== 0) {
+//           setImages(prevState => [...prevState, ...hits]);
+//           setShowLoadButton(page < Math.ceil(totalHits / 12));
+//         } else {
+//           toast.warn('Nothing was found for your request!🤦‍♂️');
+//         }
+//       } catch (error) {
+//         toast.error(`Oops! Something went wrong!😒 ${error}`);
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     }
+//     APIfetchImages();
+//   }, [page, query]);
+
+//   function handleQuerySubmit(query) {
+//     setQuery(query);
+//     setPage(1);
+//     setImages([]);
+//     setShowLoadButton(false);
+//     }
+
+//   const handleLoadMore = () => {
+//     setPage(prevPage => prevPage + 1);
+//   };
+
+//   return (
+//     <>
+//       <Searchbar onSubmit={handleQuerySubmit} />
+//       {images && <ImageGallery images={images} />}
+//       {isLoading && <Loader />}
+//       {showLoadButton && <Button onLoadMore={() => handleLoadMore()} />}
+
+//       <ToastContainer autoClose={2000} />
+//     </>
+//   );
+// };
+
+
+
 export const App = () => {
   const [query, setQuery] = useState('');
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(1);
-  const [totalHits, setTotalHits] = useState(0)
+  const [showBtn, setShowBtn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!query)
-      return;
-  
+    if (!query) return;
+
     fetchImages(query, page)
-      .then(({ hits }) => {
+      .then(({ hits, totalHits }) => {
         if (hits.length === 0) {
           return toast.error('Nothing was found for your request!🤦‍♂️');
         }
-        setImages(prevImages =>
-          page === 1 ? hits : [...prevImages, ...hits]
-        );
-        setTotalHits(prevTotalHits =>
-          page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
-        );
+        setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
+        setShowBtn(page < Math.ceil(totalHits / 12));
       })
-      .catch(error =>
-        toast.error(`Oops! Something went wrong!😒 ${error}`)
-       )
-       .finally(() => setIsLoading(false));
-  }, [page, query, totalHits]);
-
+      .catch(error => toast.error(`Oops! Something went wrong!😒 ${error}`))
+      .finally(() => setIsLoading(false));
+  }, [page, query]);
 
   // const fetchData = async () => {
   //     const { hits, totalHits } = await fetchImages(query, page);
@@ -72,88 +120,9 @@ export const App = () => {
     <>
       <Searchbar onSubmit={handleQuerySubmit} />
       {images && <ImageGallery images={images} />}
-      {!!totalHits && <Button onLoadMore={handleLoadMore} />}
+      {showBtn && <Button onLoadMore={handleLoadMore} />}
       {isLoading && <Loader />}
       <ToastContainer autoClose={2000} />
     </>
   );
 };
-
-// export class App extends Component {
-//   state = {
-//     query: '',
-//     images: [],
-//     page: 1,
-//     totalHits: 0,
-//     isLoading: false,
-//   };
-
-//   async componentDidUpdate(_, prevState) {
-//     const { query, page } = this.state;
-
-//     if (
-//       prevState.query !== query ||
-//       prevState.page !== page
-//     ) {
-//       try {
-//         this.setState({ isLoading: true });
-
-//         const { totalHits, hits } = await fetchImages(
-//           query,
-//           page
-//         );
-
-// if (totalHits === 0) {
-//   toast.error('Nothing was found for your request🤦‍♂️');
-//   this.setState({ isLoading: false });
-//   return;
-// }
-
-// this.setState(prevState => ({
-//   images:
-//     page === 1
-//       ? hits
-//       : [...prevState.images, ...hits],
-
-//           totalHits:
-// page === 1
-//   ? totalHits - hits.length
-//   : totalHits -
-//     [...prevState.images, ...hits].length,
-//         }));
-
-//         this.setState({ isLoading: false });
-//       } catch (error) {
-//         toast.error(`Oops! Something went wrong!😒 ${error}`);
-//       }
-//     }
-//   }
-
-//   handleLoadMore = () => {
-//     this.setState(prevState => ({
-//       page: prevState.page + 1,
-//     }));
-//   };
-
-//   handleQuerySubmit = query => {
-//     this.setState({ query, page: 1 });
-//   };
-
-//   render() {
-//     const { images, totalHits, isLoading } = this.state;
-//     const { handleQuerySubmit, handleLoadMore } = this;
-
-//     return (
-//       <>
-//         <Searchbar onSubmit={handleQuerySubmit} />
-//         {images && <ImageGallery images={images} />}
-//         {!!totalHits && (
-//           <Button onLoadMore={handleLoadMore} />
-//         )}
-//         {isLoading && <Loader />}
-
-//         <ToastContainer autoClose={2000} />
-//       </>
-//     );
-//   }
-// }
