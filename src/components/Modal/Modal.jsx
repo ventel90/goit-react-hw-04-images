@@ -15,7 +15,7 @@ const modalRoot = document.querySelector('#modal-root');
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  });
+  }, [closeModal]);
  
 
   const backDropClick = event => {
